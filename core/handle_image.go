@@ -25,6 +25,7 @@ var supportImageTypes = []string{
 	".png",
 	".webp",
 	".psb",
+	".jfif",
 }
 
 // gif图片
@@ -79,7 +80,7 @@ var psdImageList []string
 // 判断是否属于支持的图片文件
 func isSupportImage(imageType string) bool {
 	for _, supportImageType := range supportImageTypes {
-		if strings.EqualFold(supportImageType, imageType) {
+		if strings.EqualFold(supportImageType, strings.ToLower(imageType)) {
 			return true
 		}
 	}
