@@ -584,25 +584,25 @@ func handleVerticalVideo(currentVideoPath string, height int, suffix string) {
 	}
 	if height < 1000 {
 		verticalNormalVideoList = append(verticalNormalVideoList, currentVideoPath)
-	} else if height >= 1000 && height < 2000 {
+	} else if height < 2000 {
 		vertical1KVideoList = append(vertical1KVideoList, currentVideoPath)
-	} else if height >= 2000 && height < 3000 {
+	} else if height < 3000 {
 		vertical2KVideoList = append(vertical2KVideoList, currentVideoPath)
-	} else if height >= 3000 && height < 4000 {
+	} else if height < 4000 {
 		vertical3KVideoList = append(vertical3KVideoList, currentVideoPath)
-	} else if height >= 4000 && height < 5000 {
+	} else if height < 5000 {
 		vertical4KVideoList = append(vertical4KVideoList, currentVideoPath)
-	} else if height >= 5000 && height < 6000 {
+	} else if height < 6000 {
 		vertical5KVideoList = append(vertical5KVideoList, currentVideoPath)
-	} else if height >= 6000 && height < 7000 {
+	} else if height < 7000 {
 		vertical6KVideoList = append(vertical6KVideoList, currentVideoPath)
-	} else if height >= 7000 && height < 8000 {
+	} else if height < 8000 {
 		vertical7KVideoList = append(vertical7KVideoList, currentVideoPath)
-	} else if height >= 8000 && height < 9000 {
+	} else if height < 9000 {
 		vertical8KVideoList = append(vertical8KVideoList, currentVideoPath)
-	} else if height >= 9000 && height < 10000 {
+	} else if height < 10000 {
 		vertical9KVideoList = append(vertical9KVideoList, currentVideoPath)
-	} else if height >= 10000 {
+	} else if height > 10000 {
 		verticalHKVideoList = append(verticalHKVideoList, currentVideoPath)
 	}
 }
@@ -620,7 +620,7 @@ func handleHorizontalVideo(currentVideoPath string, width int, height int, suffi
 		// 640 × 360
 		// 640 × 480
 		horizontalNormalVideoList = append(horizontalNormalVideoList, currentVideoPath)
-	} else if width >= 1000 && width < 2000 {
+	} else if width < 2000 {
 		// 1280 x 720 -> 720p
 		if width == 1280 && height == 720 {
 			horizontalStandard720PVideoList = append(horizontalStandard720PVideoList, currentVideoPath)
@@ -632,33 +632,33 @@ func handleHorizontalVideo(currentVideoPath string, width int, height int, suffi
 			return
 		}
 		horizontal1KVideoList = append(horizontal1KVideoList, currentVideoPath)
-	} else if width >= 2000 && width < 3000 {
+	} else if width < 3000 {
 		horizontal2KVideoList = append(horizontal2KVideoList, currentVideoPath)
-	} else if width >= 3000 && width < 4000 {
+	} else if width < 4000 {
 		// 3840 x 2160 -> 4k
 		if width == 3840 && height == 2160 {
 			horizontalStandard4KVideoList = append(horizontalStandard4KVideoList, currentVideoPath)
 			return
 		}
 		horizontal3KVideoList = append(horizontal3KVideoList, currentVideoPath)
-	} else if width >= 4000 && width < 5000 {
+	} else if width < 5000 {
 		horizontal4KVideoList = append(horizontal4KVideoList, currentVideoPath)
-	} else if width >= 5000 && width < 6000 {
+	} else if width < 6000 {
 		horizontal5KVideoList = append(horizontal5KVideoList, currentVideoPath)
-	} else if width >= 6000 && width < 7000 {
+	} else if width < 7000 {
 		horizontal6KVideoList = append(horizontal6KVideoList, currentVideoPath)
-	} else if width >= 7000 && width < 8000 {
+	} else if width < 8000 {
 		// 7680 x 4320 -> 8k
 		if width == 7680 && height == 4320 {
 			horizontalStandard8KVideoList = append(horizontalStandard8KVideoList, currentVideoPath)
 			return
 		}
 		horizontal7KVideoList = append(horizontal7KVideoList, currentVideoPath)
-	} else if width >= 8000 && width < 9000 {
+	} else if width < 9000 {
 		horizontal8KVideoList = append(horizontal8KVideoList, currentVideoPath)
-	} else if width >= 9000 && width < 10000 {
+	} else if width < 10000 {
 		horizontal9KVideoList = append(horizontal9KVideoList, currentVideoPath)
-	} else if width >= 10000 {
+	} else if width > 10000 {
 		horizontalHKVideoList = append(horizontalHKVideoList, currentVideoPath)
 	}
 }
@@ -669,47 +669,47 @@ func handleSquareVideo(currentVideoPath string, width int, height int, suffix st
 		squareGifVideoList = append(squareGifVideoList, currentVideoPath)
 		return
 	}
+	// 1280 x 720 -> 720p
+	if width == 1280 && height == 720 {
+		squareStandard720PVideoList = append(squareStandard720PVideoList, currentVideoPath)
+		return
+	}
+	// 1920 x 1080 -> 1080p
+	if width == 1920 && height == 1080 {
+		squareStandard1080PVideoList = append(squareStandard1080PVideoList, currentVideoPath)
+		return
+	}
+	// 3840 x 2160 -> 4k
+	if width == 3840 && height == 2160 {
+		squareStandard4KVideoList = append(squareStandard4KVideoList, currentVideoPath)
+		return
+	}
+	// 7680 x 4320 -> 8k
+	if width == 7680 && height == 4320 {
+		squareStandard8KVideoList = append(squareStandard8KVideoList, currentVideoPath)
+		return
+	}
 	if width < 1000 {
 		squareNormalVideoList = append(squareNormalVideoList, currentVideoPath)
-	} else if width >= 1000 && width < 2000 {
-		// 1280 x 720 -> 720p
-		if width == 1280 && height == 720 {
-			squareStandard720PVideoList = append(squareStandard720PVideoList, currentVideoPath)
-			return
-		}
-		// 1920 x 1080 -> 1080p
-		if width == 1920 && height == 1080 {
-			squareStandard1080PVideoList = append(squareStandard1080PVideoList, currentVideoPath)
-			return
-		}
+	} else if width < 2000 {
 		square1KVideoList = append(square1KVideoList, currentVideoPath)
-	} else if width >= 2000 && width < 3000 {
+	} else if width < 3000 {
 		square2KVideoList = append(square2KVideoList, currentVideoPath)
-	} else if width >= 3000 && width < 4000 {
-		// 3840 x 2160 -> 4k
-		if width == 3840 && height == 2160 {
-			squareStandard4KVideoList = append(squareStandard4KVideoList, currentVideoPath)
-			return
-		}
+	} else if width < 4000 {
 		square3KVideoList = append(square3KVideoList, currentVideoPath)
-	} else if width >= 4000 && width < 5000 {
+	} else if width < 5000 {
 		square4KVideoList = append(square4KVideoList, currentVideoPath)
-	} else if width >= 5000 && width < 6000 {
+	} else if width < 6000 {
 		square5KVideoList = append(square5KVideoList, currentVideoPath)
-	} else if width >= 6000 && width < 7000 {
+	} else if width < 7000 {
 		square6KVideoList = append(square6KVideoList, currentVideoPath)
-	} else if width >= 7000 && width < 8000 {
-		// 7680 x 4320 -> 8k
-		if width == 7680 && height == 4320 {
-			squareStandard8KVideoList = append(squareStandard8KVideoList, currentVideoPath)
-			return
-		}
+	} else if width < 8000 {
 		square7KVideoList = append(square7KVideoList, currentVideoPath)
-	} else if width >= 8000 && width < 9000 {
+	} else if width < 9000 {
 		square8KVideoList = append(square8KVideoList, currentVideoPath)
-	} else if width >= 9000 && width < 10000 {
+	} else if width < 10000 {
 		square9KVideoList = append(square9KVideoList, currentVideoPath)
-	} else if width >= 10000 {
+	} else if width > 10000 {
 		squareHKVideoList = append(squareHKVideoList, currentVideoPath)
 	}
 }
