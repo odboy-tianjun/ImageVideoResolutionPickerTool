@@ -18,15 +18,16 @@ func main() {
 		fmt.Println("=== 获取当前路径异常", err)
 		return
 	}
+	rootDir = "E:\\DGD\\UnHandleHentaiImage"
 	scanner := core.FileScanner{}
 	scanner.DoScan(rootDir)
 	scanner.DoFilter()
 	if len(vars.GlobalImagePathList) > 0 {
 		core.DoHandleImage(rootDir)
 	}
-	if len(vars.GlobalVideoPathList) > 0 {
-		core.DoHandleVideo(rootDir)
-	}
+	//if len(vars.GlobalVideoPathList) > 0 {
+	//	core.DoHandleVideo(rootDir)
+	//}
 	fmt.Println("=== 5s后自动退出")
 	time.Sleep(time.Second * 5)
 }

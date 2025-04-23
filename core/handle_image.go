@@ -232,7 +232,7 @@ func handleVerticalImage(currentImagePath string, height int) {
 		vertical8KImageList = append(vertical8KImageList, currentImagePath)
 	} else if height < 10000 {
 		vertical9KImageList = append(vertical9KImageList, currentImagePath)
-	} else if height > 10000 {
+	} else if height >= 10000 { // 提示请忽略
 		verticalHKImageList = append(verticalHKImageList, currentImagePath)
 	}
 }
@@ -280,7 +280,7 @@ func handleHorizontalImage(currentImagePath string, width int, height int) {
 		horizontal8KImageList = append(horizontal8KImageList, currentImagePath)
 	} else if width < 10000 {
 		horizontal9KImageList = append(horizontal9KImageList, currentImagePath)
-	} else if width > 10000 {
+	} else if width >= 10000 { // 提示请忽略
 		horizontalHKImageList = append(horizontalHKImageList, currentImagePath)
 	}
 }
