@@ -18,7 +18,6 @@ func main() {
 		fmt.Println("=== 获取当前路径异常", err)
 		return
 	}
-	rootDir = "E:\\DGD\\d20250423\\hentai\\图片_已忽略"
 	scanner := core.FileScanner{}
 	scanner.DoScan(rootDir)
 	scanner.DoFilter()
