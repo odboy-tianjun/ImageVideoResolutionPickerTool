@@ -1,7 +1,7 @@
-rm -f OdMediaPicker.exe
-rm -f OdMediaPickerRelease.exe
+rm -f ImageVideoResolutionPickerTool.exe
+rm -f ImageVideoResolutionPickerToolRelease.exe
 # build
-go build -o OdMediaPicker.exe main.go
+go build -o ImageVideoResolutionPickerTool.exe main.go
 # upx compress
-./upx -o OdMediaPickerRelease.exe OdMediaPicker.exe
-rm -f OdMediaPicker.exe
+./upx -o ImageVideoResolutionPickerToolRelease.exe ImageVideoResolutionPickerTool.exe
+rm -f ImageVideoResolutionPickerTool.exe

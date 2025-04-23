@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/redmask-hb/GoSimplePrint/goPrint"
+	uuid "github.com/satori/go.uuid"
 	"math"
 	"os"
 	"os/exec"
@@ -150,6 +151,7 @@ func DoHandleVideo(rootDir string) {
 		}
 	}
 	doPickVideoFile(rootDir, videoPath2WidthHeightMap)
+	// 删除ffprobe
 	if util.CheckFileIsExist(readerFileName) {
 		_ = os.Remove(readerFileName)
 	}
@@ -216,6 +218,15 @@ func getVideoResolution(ffmpegExecPath string, filePath string) (width int, heig
 		height = util.String2int(parts[1])
 		return width, height, nil
 	}
+	resolutionStr = strings.ReplaceAll(resolutionStr, "\r", "")
+	resolutionStr = strings.ReplaceAll(resolutionStr, "\n", "")
+	resolutionStr = strings.ReplaceAll(resolutionStr, "N/AxN/A", "")
+	parts = strings.Split(resolutionStr, "x")
+	if len(parts) == 2 {
+		width = util.String2int(parts[0])
+		height = util.String2int(parts[1])
+		return width, height, nil
+	}
 	return 0, 0, fmt.Errorf("invalid resolution format: %s", resolutionStr)
 }
 
@@ -266,43 +277,65 @@ func doPickVideoFile(rootDir string, videoPath2WidthHeightMap map[string]string)
 		}
 		handleSquareVideo(currentVideoPath, width, height, suffix)
 	}
-	moveNormalVideo(rootDir)
-	moveHorizontalVideo(rootDir)
-	moveVerticalVideo(rootDir)
-	moveSquareVideo(rootDir)
+	uid := strings.ReplaceAll(uuid.NewV4().String(), "-", "")
+	moveNormalVideo(uid, rootDir)
+	moveHorizontalVideo(uid, rootDir)
+	moveVerticalVideo(uid, rootDir)
+	moveSquareVideo(uid, rootDir)
 }
 
 // 移动垂直视频
-func moveVerticalVideo(rootDir string) {
+func moveVerticalVideo(uid string, rootDir string) {
+	pathSeparator := string(os.PathSeparator)
 	if len(vertical1KVideoList) > 0 {
-		renameFileV2("[V][1k]", vertical1KVideoList)
+		vertical1KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_1k"
+		util.CreateDir(vertical1KVideoPath)
+		doMoveFileToDir(vertical1KVideoList, vertical1KVideoPath)
 	}
 	if len(vertical2KVideoList) > 0 {
-		renameFileV2("[V][2k]", vertical2KVideoList)
+		vertical2KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_2k"
+		util.CreateDir(vertical2KVideoPath)
+		doMoveFileToDir(vertical2KVideoList, vertical2KVideoPath)
 	}
 	if len(vertical3KVideoList) > 0 {
-		renameFileV2("[V][3k]", vertical3KVideoList)
+		vertical3KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_3k"
+		util.CreateDir(vertical3KVideoPath)
+		doMoveFileToDir(vertical3KVideoList, vertical3KVideoPath)
 	}
 	if len(vertical4KVideoList) > 0 {
-		renameFileV2("[V][4k]", vertical4KVideoList)
+		vertical4KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_4k"
+		util.CreateDir(vertical4KVideoPath)
+		doMoveFileToDir(vertical4KVideoList, vertical4KVideoPath)
 	}
 	if len(vertical5KVideoList) > 0 {
-		renameFileV2("[V][5k]", vertical5KVideoList)
+		vertical5KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_5k"
+		util.CreateDir(vertical5KVideoPath)
+		doMoveFileToDir(vertical5KVideoList, vertical5KVideoPath)
 	}
 	if len(vertical6KVideoList) > 0 {
-		renameFileV2("[V][6k]", vertical6KVideoList)
+		vertical6KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_6k"
+		util.CreateDir(vertical6KVideoPath)
+		doMoveFileToDir(vertical6KVideoList, vertical6KVideoPath)
 	}
 	if len(vertical7KVideoList) > 0 {
-		renameFileV2("[V][7k]", vertical7KVideoList)
+		vertical7KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_7k"
+		util.CreateDir(vertical7KVideoPath)
+		doMoveFileToDir(vertical7KVideoList, vertical7KVideoPath)
 	}
 	if len(vertical8KVideoList) > 0 {
-		renameFileV2("[V][8k]", vertical8KVideoList)
+		vertical8KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_8k"
+		util.CreateDir(vertical8KVideoPath)
+		doMoveFileToDir(vertical8KVideoList, vertical8KVideoPath)
 	}
 	if len(vertical9KVideoList) > 0 {
-		renameFileV2("[V][9k]", vertical9KVideoList)
+		vertical9KVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_9k"
+		util.CreateDir(vertical9KVideoPath)
+		doMoveFileToDir(vertical9KVideoList, vertical9KVideoPath)
 	}
 	if len(verticalHKVideoList) > 0 {
-		renameFileV2("[V][原]", verticalHKVideoList)
+		verticalHKVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_原画质"
+		util.CreateDir(verticalHKVideoPath)
+		doMoveFileToDir(verticalHKVideoList, verticalHKVideoPath)
 	}
 }
 
@@ -374,109 +407,172 @@ func renameFileV2(modelType string, videoList []string) {
 }
 
 // 移动水平视频
-func moveHorizontalVideo(rootDir string) {
+func moveHorizontalVideo(uid string, rootDir string) {
+	pathSeparator := string(os.PathSeparator)
 	if len(horizontal1KVideoList) > 0 {
-		renameFileV2("[H][1k]", horizontal1KVideoList)
+		horizontal1KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_1k"
+		util.CreateDir(horizontal1KVideoPath)
+		doMoveFileToDir(horizontal1KVideoList, horizontal1KVideoPath)
 	}
 	if len(horizontal2KVideoList) > 0 {
-		renameFileV2("[H][2k]", horizontal2KVideoList)
+		horizontal2KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_2k"
+		util.CreateDir(horizontal2KVideoPath)
+		doMoveFileToDir(horizontal2KVideoList, horizontal2KVideoPath)
 	}
 	if len(horizontal3KVideoList) > 0 {
-		renameFileV2("[H][3k]", horizontal3KVideoList)
+		horizontal3KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_3k"
+		util.CreateDir(horizontal3KVideoPath)
+		doMoveFileToDir(horizontal3KVideoList, horizontal3KVideoPath)
 	}
 	if len(horizontal4KVideoList) > 0 {
-		renameFileV2("[H][4k]", horizontal4KVideoList)
+		horizontal4KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_4k"
+		util.CreateDir(horizontal4KVideoPath)
+		doMoveFileToDir(horizontal4KVideoList, horizontal4KVideoPath)
 	}
 	if len(horizontal5KVideoList) > 0 {
-		renameFileV2("[H][5k]", horizontal5KVideoList)
+		horizontal5KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_5k"
+		util.CreateDir(horizontal5KVideoPath)
+		doMoveFileToDir(horizontal5KVideoList, horizontal5KVideoPath)
 	}
 	if len(horizontal6KVideoList) > 0 {
-		renameFileV2("[H][6k]", horizontal6KVideoList)
+		horizontal6KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_6k"
+		util.CreateDir(horizontal6KVideoPath)
+		doMoveFileToDir(horizontal6KVideoList, horizontal6KVideoPath)
 	}
 	if len(horizontal7KVideoList) > 0 {
-		renameFileV2("[H][7k]", horizontal7KVideoList)
+		horizontal7KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_7k"
+		util.CreateDir(horizontal7KVideoPath)
+		doMoveFileToDir(horizontal7KVideoList, horizontal7KVideoPath)
 	}
 	if len(horizontal8KVideoList) > 0 {
-		renameFileV2("[H][8k]", horizontal8KVideoList)
+		horizontal8KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_8k"
+		util.CreateDir(horizontal8KVideoPath)
+		doMoveFileToDir(horizontal8KVideoList, horizontal8KVideoPath)
 	}
 	if len(horizontal9KVideoList) > 0 {
-		renameFileV2("[H][9k]", horizontal9KVideoList)
+		horizontal9KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_9k"
+		util.CreateDir(horizontal9KVideoPath)
+		doMoveFileToDir(horizontal9KVideoList, horizontal9KVideoPath)
 	}
 	if len(horizontalHKVideoList) > 0 {
-		renameFileV2("[H][原]", horizontalHKVideoList)
+		horizontalHKVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_原画质"
+		util.CreateDir(horizontalHKVideoPath)
+		doMoveFileToDir(horizontalHKVideoList, horizontalHKVideoPath)
 	}
 	if len(horizontalStandard720PVideoList) > 0 {
-		renameFileV2("[H][720P]", horizontalStandard720PVideoList)
+		horizontal720PVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_720P"
+		util.CreateDir(horizontal720PVideoPath)
+		doMoveFileToDir(horizontalStandard720PVideoList, horizontal720PVideoPath)
 	}
 	if len(horizontalStandard1080PVideoList) > 0 {
-		renameFileV2("[H][1080P]", horizontalStandard1080PVideoList)
+		horizontal1080PVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_1080P"
+		util.CreateDir(horizontal1080PVideoPath)
+		doMoveFileToDir(horizontalStandard1080PVideoList, horizontal1080PVideoPath)
 	}
 	if len(horizontalStandard4KVideoList) > 0 {
-		renameFileV2("[H][4KP]", horizontalStandard4KVideoList)
+		horizontal4KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_4K"
+		util.CreateDir(horizontal4KVideoPath)
+		doMoveFileToDir(horizontalStandard4KVideoList, horizontal4KVideoPath)
 	}
 	if len(horizontalStandard8KVideoList) > 0 {
-		renameFileV2("[H][8KP]", horizontalStandard8KVideoList)
+		horizontal8KVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_8K"
+		util.CreateDir(horizontal8KVideoPath)
+		doMoveFileToDir(horizontalStandard8KVideoList, horizontal8KVideoPath)
 	}
 }
 
 // 移动等比视频
-func moveSquareVideo(rootDir string) {
+func moveSquareVideo(uid string, rootDir string) {
+	pathSeparator := string(os.PathSeparator)
 	if len(square1KVideoList) > 0 {
-		renameFileV2("[M][1k]", square1KVideoList)
+		square1KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_1k"
+		util.CreateDir(square1KVideoPath)
+		doMoveFileToDir(square1KVideoList, square1KVideoPath)
 	}
 	if len(square2KVideoList) > 0 {
-		renameFileV2("[M][2k]", square2KVideoList)
+		square2KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_2k"
+		util.CreateDir(square2KVideoPath)
+		doMoveFileToDir(square2KVideoList, square2KVideoPath)
 	}
 	if len(square3KVideoList) > 0 {
-		renameFileV2("[M][3k]", square3KVideoList)
+		square3KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_3k"
+		util.CreateDir(square3KVideoPath)
+		doMoveFileToDir(square3KVideoList, square3KVideoPath)
 	}
 	if len(square4KVideoList) > 0 {
-		renameFileV2("[M][4k]", square4KVideoList)
+		square4KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_4k"
+		util.CreateDir(square4KVideoPath)
+		doMoveFileToDir(square4KVideoList, square4KVideoPath)
 	}
 	if len(square5KVideoList) > 0 {
-		renameFileV2("[M][5k]", square5KVideoList)
+		square5KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_5k"
+		util.CreateDir(square5KVideoPath)
+		doMoveFileToDir(square5KVideoList, square5KVideoPath)
 	}
 	if len(square6KVideoList) > 0 {
-		renameFileV2("[M][6k]", square6KVideoList)
+		square6KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_6k"
+		util.CreateDir(square6KVideoPath)
+		doMoveFileToDir(square6KVideoList, square6KVideoPath)
 	}
 	if len(square7KVideoList) > 0 {
-		renameFileV2("[M][7k]", square7KVideoList)
+		square7KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_7k"
+		util.CreateDir(square7KVideoPath)
+		doMoveFileToDir(square7KVideoList, square7KVideoPath)
 	}
 	if len(square8KVideoList) > 0 {
-		renameFileV2("[M][8k]", square8KVideoList)
+		square8KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_8k"
+		util.CreateDir(square8KVideoPath)
+		doMoveFileToDir(square8KVideoList, square8KVideoPath)
 	}
 	if len(square9KVideoList) > 0 {
-		renameFileV2("[M][9k]", square9KVideoList)
+		square9KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_9k"
+		util.CreateDir(square9KVideoPath)
+		doMoveFileToDir(square9KVideoList, square9KVideoPath)
 	}
 	if len(squareHKVideoList) > 0 {
-		renameFileV2("[M][原]", squareHKVideoList)
+		squareHKVideoPath := rootDir + pathSeparator + uid + "-视频_等比_原画质"
+		util.CreateDir(squareHKVideoPath)
+		doMoveFileToDir(squareHKVideoList, squareHKVideoPath)
 	}
 	if len(squareStandard720PVideoList) > 0 {
-		renameFileV2("[M][720P]", squareStandard720PVideoList)
+		square720PVideoPath := rootDir + pathSeparator + uid + "-视频_等比_720P"
+		util.CreateDir(square720PVideoPath)
+		doMoveFileToDir(squareStandard720PVideoList, square720PVideoPath)
 	}
 	if len(squareStandard1080PVideoList) > 0 {
-		renameFileV2("[M][1080P]", squareStandard1080PVideoList)
+		square1080PVideoPath := rootDir + pathSeparator + uid + "-视频_等比_1080P"
+		util.CreateDir(square1080PVideoPath)
+		doMoveFileToDir(squareStandard1080PVideoList, square1080PVideoPath)
 	}
 	if len(squareStandard4KVideoList) > 0 {
-		renameFileV2("[M][4KP]", squareStandard4KVideoList)
+		square4KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_4K"
+		util.CreateDir(square4KVideoPath)
+		doMoveFileToDir(squareStandard4KVideoList, square4KVideoPath)
 	}
 	if len(squareStandard8KVideoList) > 0 {
-		renameFileV2("[M][8KP]", squareStandard8KVideoList)
+		square8KVideoPath := rootDir + pathSeparator + uid + "-视频_等比_8K"
+		util.CreateDir(square8KVideoPath)
+		doMoveFileToDir(squareStandard8KVideoList, square8KVideoPath)
 	}
 }
 
 // 移动普通视频
-func moveNormalVideo(rootDir string) {
-	//pathSeparator := string(os.PathSeparator)
+func moveNormalVideo(uid string, rootDir string) {
+	pathSeparator := string(os.PathSeparator)
 	if len(horizontalNormalVideoList) > 0 {
-		//renameFile(rootDir, "[L]", horizontalNormalVideoList, pathSeparator)
-		renameFileV2("[L]", horizontalNormalVideoList)
+		horizontalNormalVideoPath := rootDir + pathSeparator + uid + "-视频_横屏_普通"
+		util.CreateDir(horizontalNormalVideoPath)
+		doMoveFileToDir(horizontalNormalVideoList, horizontalNormalVideoPath)
 	}
 	if len(verticalNormalVideoList) > 0 {
-		renameFileV2("[L]", verticalNormalVideoList)
+		verticalNormalVideoPath := rootDir + pathSeparator + uid + "-视频_竖屏_普通"
+		util.CreateDir(verticalNormalVideoPath)
+		doMoveFileToDir(verticalNormalVideoList, verticalNormalVideoPath)
 	}
 	if len(squareNormalVideoList) > 0 {
-		renameFileV2("[L]", squareNormalVideoList)
+		squareNormalVideoPath := rootDir + pathSeparator + uid + "-视频_等比_普通"
+		util.CreateDir(squareNormalVideoPath)
+		doMoveFileToDir(squareNormalVideoList, squareNormalVideoPath)
 	}
 }
 
