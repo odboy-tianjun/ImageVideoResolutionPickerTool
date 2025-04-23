@@ -24,9 +24,9 @@ func main() {
 	if len(vars.GlobalImagePathList) > 0 {
 		core.DoHandleImage(rootDir)
 	}
-	//if len(vars.GlobalVideoPathList) > 0 {
-	//	core.DoHandleVideo(rootDir)
-	//}
+	if len(vars.GlobalVideoPathList) > 0 {
+		core.DoHandleVideo(rootDir)
+	}
 	fmt.Println("=== 5s后自动退出")
 	time.Sleep(time.Second * 5)
 }
