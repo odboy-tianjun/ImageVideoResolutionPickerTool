@@ -1,8 +1,8 @@
 package core
 
 import (
-	"OdMediaPicker/util"
-	"OdMediaPicker/vars"
+	"ImageVideoResolutionPickerTool/util"
+	"ImageVideoResolutionPickerTool/vars"
 	"fmt"
 	"github.com/redmask-hb/GoSimplePrint/goPrint"
 	"log"
@@ -57,7 +57,7 @@ func (FileScanner) DoFilter() {
 		}
 		// mime格式为application/octet-stream的视频
 		ext := path.Ext(globalFilePath)
-		if isSupportVideo(ext) {
+		if util.IsSupportVideo(ext) {
 			vars.GlobalVideoPathList = append(vars.GlobalVideoPathList, globalFilePath)
 			bar.PrintBar(util.CalcPercentage(count, total))
 			continue
@@ -67,7 +67,7 @@ func (FileScanner) DoFilter() {
 			bar.PrintBar(util.CalcPercentage(count, total))
 			continue
 		}
-		if isSupportImage(ext) {
+		if util.IsSupportImage(ext) {
 			vars.GlobalImagePathList = append(vars.GlobalImagePathList, globalFilePath)
 			bar.PrintBar(util.CalcPercentage(count, total))
 			continue

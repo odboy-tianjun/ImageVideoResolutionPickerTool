@@ -1,105 +1,16 @@
 package core
 
 import (
-	"OdMediaPicker/util"
-	"OdMediaPicker/vars"
+	"ImageVideoResolutionPickerTool/util"
+	"ImageVideoResolutionPickerTool/vars"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
-	"image"
 	_ "image/gif"  // 导入gif支持
 	_ "image/jpeg" // 导入jpeg支持
 	_ "image/png"  // 导入png支持
 	"os"
 	"strings"
 )
-
-var ignoreImagePathList []string                       // 忽略的文件路径
-var readErrorImagePathList []string                    // 读取信息异常的路径
-var imagePath2WidthHeightMap = make(map[string]string) // 图片路径和宽高比
-var supportImageTypes = []string{
-	".bmp",
-	".gif",
-	".jpg",
-	".jpeg",
-	".jpe",
-	".png",
-	".webp",
-	".psb",
-	".jfif",
-}
-
-// gif图片
-var gifImageList []string
-
-// 横向图片
-var horizontalNormalImageList []string
-var horizontal1KImageList []string
-var horizontal2KImageList []string
-var horizontal3KImageList []string
-var horizontal4KImageList []string
-var horizontal5KImageList []string
-var horizontal6KImageList []string
-var horizontal7KImageList []string
-var horizontal8KImageList []string
-var horizontal9KImageList []string
-var horizontalHKImageList []string
-var horizontalStandard720PImageList []string
-var horizontalStandard1080PImageList []string
-var horizontalStandard4KImageList []string
-var horizontalStandard8KImageList []string
-
-// 纵向图片
-var verticalNormalImageList []string
-var vertical1KImageList []string
-var vertical2KImageList []string
-var vertical3KImageList []string
-var vertical4KImageList []string
-var vertical5KImageList []string
-var vertical6KImageList []string
-var vertical7KImageList []string
-var vertical8KImageList []string
-var vertical9KImageList []string
-var verticalHKImageList []string
-
-// 等比图片
-var squareNormalImageList []string
-var square1KImageList []string
-var square2KImageList []string
-var square3KImageList []string
-var square4KImageList []string
-var square5KImageList []string
-var square6KImageList []string
-var square7KImageList []string
-var square8KImageList []string
-var square9KImageList []string
-var squareHKImageList []string
-
-// psd图片
-var psdImageList []string
-
-// 判断是否属于支持的图片文件
-func isSupportImage(imageType string) bool {
-	for _, supportImageType := range supportImageTypes {
-		if strings.EqualFold(supportImageType, strings.ToLower(imageType)) {
-			return true
-		}
-	}
-	return false
-}
-
-// 读取一般图片文件信息
-func readImageInfo(filePath string) (err error, width int, height int) {
-	file, err := os.Open(filePath) // 图片文件路径
-	if err != nil {
-		return err, 0, 0
-	}
-	defer file.Close()
-	img, _, err := image.DecodeConfig(file)
-	if err != nil {
-		return err, 0, 0
-	}
-	return nil, img.Width, img.Height
-}
 
 func DoHandleImage(rootDir string) {
 	total := len(vars.GlobalImagePathList) // 总数
@@ -108,23 +19,23 @@ func DoHandleImage(rootDir string) {
 	ignoreCount := 0                       // 忽略数
 	for _, imageFilePath := range vars.GlobalImagePathList {
 		suffix := vars.GlobalFilePath2FileExtMap[imageFilePath]
-		if isSupportImage(suffix) {
-			err, width, height := readImageInfo(imageFilePath)
+		if util.IsSupportImage(suffix) {
+			err, width, height := util.ReadImageInfo(imageFilePath)
 			if err == nil {
 				successCount = successCount + 1
-				imagePath2WidthHeightMap[imageFilePath] = fmt.Sprintf("%d-%d", width, height)
+				vars.ImagePath2WidthHeightMap[imageFilePath] = fmt.Sprintf("%d-%d", width, height)
 				fmt.Printf("=== Image总数: %d, 已读取Info: %d, 成功数: %d, 失败数: %d \n", total, successCount+errorCount+ignoreCount, successCount, errorCount)
 			} else {
 				errorCount = errorCount + 1
-				readErrorImagePathList = append(readErrorImagePathList, imageFilePath)
+				vars.ImageReadErrorPathList = append(vars.ImageReadErrorPathList, imageFilePath)
 				fmt.Printf("=== 异常图片: %s \n", imageFilePath)
 			}
 			continue
 		}
 		if strings.EqualFold(suffix, ".webp") { // 特殊文件处理, webp为网络常用图片格式
-			webpErr, webpWidth, webpHeight := readWebpTypeImage(imageFilePath)
+			webpErr, webpWidth, webpHeight := ReadWebpImage(imageFilePath)
 			if webpErr == nil {
-				imagePath2WidthHeightMap[imageFilePath] = fmt.Sprintf("%d-%d", webpWidth, webpHeight)
+				vars.ImagePath2WidthHeightMap[imageFilePath] = fmt.Sprintf("%d-%d", webpWidth, webpHeight)
 				successCount = successCount + 1
 			} else {
 				errorCount = errorCount + 1
@@ -133,9 +44,9 @@ func DoHandleImage(rootDir string) {
 			continue
 		}
 		if strings.EqualFold(suffix, ".bmp") { // 特殊文件处理
-			bpmErr, bmpWidth, bmpHeight := readBmpInfo(imageFilePath)
+			bpmErr, bmpWidth, bmpHeight := ReadBmpImage(imageFilePath)
 			if bpmErr == nil {
-				imagePath2WidthHeightMap[imageFilePath] = fmt.Sprintf("%d-%d", bmpWidth, bmpHeight)
+				vars.ImagePath2WidthHeightMap[imageFilePath] = fmt.Sprintf("%d-%d", bmpWidth, bmpHeight)
 				successCount = successCount + 1
 			} else {
 				errorCount = errorCount + 1
@@ -144,40 +55,40 @@ func DoHandleImage(rootDir string) {
 			continue
 		}
 		if strings.EqualFold(suffix, ".psd") { // 特殊文件处理
-			psdImageList = append(psdImageList, imageFilePath)
+			vars.ImagePsdList = append(vars.ImagePsdList, imageFilePath)
 			successCount = successCount + 1
 			continue
 		}
 		// 其他的直接先忽略吧, 爱改改, 不改拉倒
 		ignoreCount = ignoreCount + 1
-		ignoreImagePathList = append(ignoreImagePathList, imageFilePath)
+		vars.ImageIgnorePathList = append(vars.ImageIgnorePathList, imageFilePath)
 	}
 	uid := strings.ReplaceAll(uuid.NewV4().String(), "-", "")
-	if len(psdImageList) > 0 {
+	if len(vars.ImagePsdList) > 0 {
 		psdImagePath := rootDir + string(os.PathSeparator) + uid + "-图片_PSD"
 		if util.CreateDir(psdImagePath) {
-			doMoveFileToDir(psdImageList, psdImagePath)
+			util.DoMoveFileToDir(vars.ImagePsdList, psdImagePath)
 		}
 	}
-	if len(readErrorImagePathList) > 0 {
+	if len(vars.ImageReadErrorPathList) > 0 {
 		readInfoErrorPath := rootDir + string(os.PathSeparator) + uid + "-图片_读取异常"
 		if util.CreateDir(readInfoErrorPath) {
-			doMoveFileToDir(readErrorImagePathList, readInfoErrorPath)
+			util.DoMoveFileToDir(vars.ImageReadErrorPathList, readInfoErrorPath)
 		}
 	}
-	if len(ignoreImagePathList) > 0 {
+	if len(vars.ImageIgnorePathList) > 0 {
 		ignorePath := rootDir + string(os.PathSeparator) + uid + "-图片_已忽略"
 		if util.CreateDir(ignorePath) {
-			doMoveFileToDir(ignoreImagePathList, ignorePath)
+			util.DoMoveFileToDir(vars.ImageIgnorePathList, ignorePath)
 		}
 	}
-	doPickImageFile(uid, rootDir, imagePath2WidthHeightMap)
+	doPickImageFile(uid, rootDir, vars.ImagePath2WidthHeightMap)
 	fmt.Printf("=== 图片处理完毕(UID): %s \n\n", uid)
 }
 
 // 条件图片并分组存放
 func doPickImageFile(uid string, rootDir string, imagePath2WidthHeightMap map[string]string) {
-	if len(imagePath2WidthHeightMap) == 0 {
+	if len(vars.ImagePath2WidthHeightMap) == 0 {
 		fmt.Printf("=== 当前目录下没有扫描到图片文件, %s \n", rootDir)
 		return
 	}
@@ -207,82 +118,117 @@ func doPickImageFile(uid string, rootDir string, imagePath2WidthHeightMap map[st
 
 // 统一处理gif
 func handleGifImage(path string) {
-	gifImageList = append(gifImageList, path)
+	vars.ImageGifList = append(vars.ImageGifList, path)
 }
 
 // 处理垂直图片
 func handleVerticalImage(currentImagePath string, height int) {
 	// 非标规格
 	if height < 1000 {
-		verticalNormalImageList = append(verticalNormalImageList, currentImagePath)
+		vars.ImageVerticalNormalList = append(vars.ImageVerticalNormalList, currentImagePath)
 	} else if height < 2000 {
-		vertical1KImageList = append(vertical1KImageList, currentImagePath)
+		vars.ImageVertical1KList = append(vars.ImageVertical1KList, currentImagePath)
 	} else if height < 3000 {
-		vertical2KImageList = append(vertical2KImageList, currentImagePath)
+		vars.ImageVertical2KList = append(vars.ImageVertical2KList, currentImagePath)
 	} else if height < 4000 {
-		vertical3KImageList = append(vertical3KImageList, currentImagePath)
+		vars.ImageVertical3KList = append(vars.ImageVertical3KList, currentImagePath)
 	} else if height < 5000 {
-		vertical4KImageList = append(vertical4KImageList, currentImagePath)
+		vars.ImageVertical4KList = append(vars.ImageVertical4KList, currentImagePath)
 	} else if height < 6000 {
-		vertical5KImageList = append(vertical5KImageList, currentImagePath)
+		vars.ImageVertical5KList = append(vars.ImageVertical5KList, currentImagePath)
 	} else if height < 7000 {
-		vertical6KImageList = append(vertical6KImageList, currentImagePath)
+		vars.ImageVertical6KList = append(vars.ImageVertical6KList, currentImagePath)
 	} else if height < 8000 {
-		vertical7KImageList = append(vertical7KImageList, currentImagePath)
+		vars.ImageVertical7KList = append(vars.ImageVertical7KList, currentImagePath)
 	} else if height < 9000 {
-		vertical8KImageList = append(vertical8KImageList, currentImagePath)
+		vars.ImageVertical8KList = append(vars.ImageVertical8KList, currentImagePath)
 	} else if height < 10000 {
-		vertical9KImageList = append(vertical9KImageList, currentImagePath)
+		vars.ImageVertical9KList = append(vars.ImageVertical9KList, currentImagePath)
 	} else if height >= 10000 { // 提示请忽略
-		verticalHKImageList = append(verticalHKImageList, currentImagePath)
+		vars.ImageVerticalHKList = append(vars.ImageVerticalHKList, currentImagePath)
 	}
 }
 
 // 处理横向图片
 func handleHorizontalImage(currentImagePath string, width int, height int) {
-	// 1280 x 720 -> 720p
+	// 1280×720（720p）—— 标准高清（HD），常用于早期高清视频或小型屏幕
 	if width == 1280 && height == 720 {
-		horizontalStandard720PImageList = append(horizontalStandard720PImageList, currentImagePath)
+		vars.ImageHorizontalStandard720PList = append(vars.ImageHorizontalStandard720PList, currentImagePath)
 		return
 	}
-	// 1920 x 1080 -> 1080p
+	// 1600×900—— 介于HD和FHD之间
+	if width == 1600 && height == 900 {
+		vars.ImageHorizontalStandard1D5KList = append(vars.ImageHorizontalStandard1D5KList, currentImagePath)
+		return
+	}
+	// 1920×1080（1080p）—— 全高清，主流显示器、电视和视频的分辨率
 	if width == 1920 && height == 1080 {
-		horizontalStandard1080PImageList = append(horizontalStandard1080PImageList, currentImagePath)
+		vars.ImageHorizontalStandard1080PList = append(vars.ImageHorizontalStandard1080PList, currentImagePath)
 		return
 	}
-	// 3840 x 2160 -> 4k
+	// 2048×1080（2dk）—— 影院2k
+	if width == 2048 && height == 1080 {
+		vars.ImageHorizontalStandard2DKList = append(vars.ImageHorizontalStandard2DKList, currentImagePath)
+		return
+	}
+	// 2560×1440（1440p）—— 俗称“2.5K”，电竞显示器或高端手机屏幕
+	if width == 2560 && height == 1440 {
+		vars.ImageHorizontalStandard2D5KList = append(vars.ImageHorizontalStandard2D5KList, currentImagePath)
+		return
+	}
+	// 2560×1080—— 带鱼屏显示器（超宽屏）
+	if width == 2560 && height == 1080 {
+		vars.ImageHorizontalStandardUltraWide2List = append(vars.ImageHorizontalStandardUltraWide2List, currentImagePath)
+		return
+	}
+	// 3440×1440—— 带鱼屏显示器（超宽屏）
+	if width == 3440 && height == 1440 {
+		vars.ImageHorizontalStandardUltraWide3List = append(vars.ImageHorizontalStandardUltraWide3List, currentImagePath)
+		return
+	}
+	// 5120×2160—— 带鱼屏显示器（超宽屏）
+	if width == 5120 && height == 2160 {
+		vars.ImageHorizontalStandardUltraWide4List = append(vars.ImageHorizontalStandardUltraWide4List, currentImagePath)
+		return
+	}
+	// 3840×2160（主流4K）—— 超高清，现代高端显示器、电视和影视制作
 	if width == 3840 && height == 2160 {
-		horizontalStandard4KImageList = append(horizontalStandard4KImageList, currentImagePath)
+		vars.ImageHorizontalStandard4KList = append(vars.ImageHorizontalStandard4KList, currentImagePath)
 		return
 	}
-	// 7680 x 4320 -> 8k
+	// 4096×2160（DCI 4K）—— 电影行业标准
+	if width == 4096 && height == 2160 {
+		vars.ImageHorizontalStandard4KHList = append(vars.ImageHorizontalStandard4KHList, currentImagePath)
+		return
+	}
+	// 7680×4320—— 超高清，用于专业影视或高端设备
 	if width == 7680 && height == 4320 {
-		horizontalStandard8KImageList = append(horizontalStandard8KImageList, currentImagePath)
+		vars.ImageHorizontalStandard8KList = append(vars.ImageHorizontalStandard8KList, currentImagePath)
 		return
 	}
 	// 非标规格
 	if width < 1000 {
-		horizontalNormalImageList = append(horizontalNormalImageList, currentImagePath)
+		vars.ImageHorizontalNormalList = append(vars.ImageHorizontalNormalList, currentImagePath)
 	} else if width < 2000 {
-		horizontal1KImageList = append(horizontal1KImageList, currentImagePath)
+		vars.ImageHorizontal1KList = append(vars.ImageHorizontal1KList, currentImagePath)
 	} else if width < 3000 {
-		horizontal2KImageList = append(horizontal2KImageList, currentImagePath)
+		vars.ImageHorizontal2KList = append(vars.ImageHorizontal2KList, currentImagePath)
 	} else if width < 4000 {
-		horizontal3KImageList = append(horizontal3KImageList, currentImagePath)
+		vars.ImageHorizontal3KList = append(vars.ImageHorizontal3KList, currentImagePath)
 	} else if width < 5000 {
-		horizontal4KImageList = append(horizontal4KImageList, currentImagePath)
+		vars.ImageHorizontal4KList = append(vars.ImageHorizontal4KList, currentImagePath)
 	} else if width < 6000 {
-		horizontal5KImageList = append(horizontal5KImageList, currentImagePath)
+		vars.ImageHorizontal5KList = append(vars.ImageHorizontal5KList, currentImagePath)
 	} else if width < 7000 {
-		horizontal6KImageList = append(horizontal6KImageList, currentImagePath)
+		vars.ImageHorizontal6KList = append(vars.ImageHorizontal6KList, currentImagePath)
 	} else if width < 8000 {
-		horizontal7KImageList = append(horizontal7KImageList, currentImagePath)
+		vars.ImageHorizontal7KList = append(vars.ImageHorizontal7KList, currentImagePath)
 	} else if width < 9000 {
-		horizontal8KImageList = append(horizontal8KImageList, currentImagePath)
+		vars.ImageHorizontal8KList = append(vars.ImageHorizontal8KList, currentImagePath)
 	} else if width < 10000 {
-		horizontal9KImageList = append(horizontal9KImageList, currentImagePath)
+		vars.ImageHorizontal9KList = append(vars.ImageHorizontal9KList, currentImagePath)
 	} else if width >= 10000 { // 提示请忽略
-		horizontalHKImageList = append(horizontalHKImageList, currentImagePath)
+		vars.ImageHorizontalHKList = append(vars.ImageHorizontalHKList, currentImagePath)
 	}
 }
 
@@ -290,27 +236,27 @@ func handleHorizontalImage(currentImagePath string, width int, height int) {
 func handleSquareImage(currentImagePath string, width int) {
 	// 非标规格
 	if width < 1000 {
-		squareNormalImageList = append(squareNormalImageList, currentImagePath)
+		vars.ImageSquareNormalList = append(vars.ImageSquareNormalList, currentImagePath)
 	} else if width < 2000 {
-		square1KImageList = append(square1KImageList, currentImagePath)
+		vars.ImageSquare1KList = append(vars.ImageSquare1KList, currentImagePath)
 	} else if width < 3000 {
-		square2KImageList = append(square2KImageList, currentImagePath)
+		vars.ImageSquare2KList = append(vars.ImageSquare2KList, currentImagePath)
 	} else if width < 4000 {
-		square3KImageList = append(square3KImageList, currentImagePath)
+		vars.ImageSquare3KList = append(vars.ImageSquare3KList, currentImagePath)
 	} else if width < 5000 {
-		square4KImageList = append(square4KImageList, currentImagePath)
+		vars.ImageSquare4KList = append(vars.ImageSquare4KList, currentImagePath)
 	} else if width < 6000 {
-		square5KImageList = append(square5KImageList, currentImagePath)
+		vars.ImageSquare5KList = append(vars.ImageSquare5KList, currentImagePath)
 	} else if width < 7000 {
-		square6KImageList = append(square6KImageList, currentImagePath)
+		vars.ImageSquare6KList = append(vars.ImageSquare6KList, currentImagePath)
 	} else if width < 8000 {
-		square7KImageList = append(square7KImageList, currentImagePath)
+		vars.ImageSquare7KList = append(vars.ImageSquare7KList, currentImagePath)
 	} else if width < 9000 {
-		square8KImageList = append(square8KImageList, currentImagePath)
+		vars.ImageSquare8KList = append(vars.ImageSquare8KList, currentImagePath)
 	} else if width < 10000 {
-		square9KImageList = append(square9KImageList, currentImagePath)
+		vars.ImageSquare9KList = append(vars.ImageSquare9KList, currentImagePath)
 	} else if width > 10000 {
-		squareHKImageList = append(squareHKImageList, currentImagePath)
+		vars.ImageSquareHKList = append(vars.ImageSquareHKList, currentImagePath)
 	}
 }
 
@@ -318,81 +264,116 @@ func handleSquareImage(currentImagePath string, width int) {
 func moveHorizontalImage(rootDir string, uid string) {
 	pathSeparator := string(os.PathSeparator)
 	// 标准
-	if len(horizontalStandard720PImageList) > 0 {
-		horizontalStandard720PImagePath := rootDir + pathSeparator + uid + "-图片_横屏_720P"
-		util.CreateDir(horizontalStandard720PImagePath)
-		doMoveFileToDir(horizontalStandard720PImageList, horizontalStandard720PImagePath)
+	if len(vars.ImageHorizontalStandard720PList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_720P"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandard720PList, imageDirPath)
 	}
-	if len(horizontalStandard1080PImageList) > 0 {
-		horizontalStandard1080PImagePath := rootDir + pathSeparator + uid + "-图片_横屏_1080P"
-		util.CreateDir(horizontalStandard1080PImagePath)
-		doMoveFileToDir(horizontalStandard1080PImageList, horizontalStandard1080PImagePath)
+	if len(vars.ImageHorizontalStandard1D5KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_1D5KP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandard1D5KList, imageDirPath)
 	}
-	if len(horizontalStandard4KImageList) > 0 {
-		horizontalStandard4KImagePath := rootDir + pathSeparator + uid + "-图片_横屏_4KP"
-		util.CreateDir(horizontalStandard4KImagePath)
-		doMoveFileToDir(horizontalStandard4KImageList, horizontalStandard4KImagePath)
+	if len(vars.ImageHorizontalStandard1080PList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_1080P"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandard1080PList, imageDirPath)
 	}
-	if len(horizontalStandard8KImageList) > 0 {
-		horizontalStandard8KImagePath := rootDir + pathSeparator + uid + "-图片_横屏_8KP"
-		util.CreateDir(horizontalStandard8KImagePath)
-		doMoveFileToDir(horizontalStandard8KImageList, horizontalStandard8KImagePath)
+	if len(vars.ImageHorizontalStandard2DKList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_2DKP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandard2DKList, imageDirPath)
+	}
+	if len(vars.ImageHorizontalStandard2D5KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_2D5KP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandard2D5KList, imageDirPath)
+	}
+	if len(vars.ImageHorizontalStandardUltraWide2List) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_ultraWide2KP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandardUltraWide2List, imageDirPath)
+	}
+	if len(vars.ImageHorizontalStandardUltraWide3List) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_ultraWide3KP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandardUltraWide3List, imageDirPath)
+	}
+	if len(vars.ImageHorizontalStandardUltraWide4List) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_ultraWide4KP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandardUltraWide4List, imageDirPath)
+	}
+	if len(vars.ImageHorizontalStandard4KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_4KP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandard4KList, imageDirPath)
+	}
+	if len(vars.ImageHorizontalStandard4KHList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_4KHP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandard4KHList, imageDirPath)
+	}
+	if len(vars.ImageHorizontalStandard8KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_8KP"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalStandard8KList, imageDirPath)
 	}
 	// 非标准
-	if len(horizontalNormalImageList) > 0 {
-		horizontalNormalImagePath := rootDir + pathSeparator + uid + "-图片_横屏_普通"
-		util.CreateDir(horizontalNormalImagePath)
-		doMoveFileToDir(horizontalNormalImageList, horizontalNormalImagePath)
+	if len(vars.ImageHorizontalNormalList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_普通"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalNormalList, imageDirPath)
 	}
-	if len(horizontal1KImageList) > 0 {
-		horizontal1kImagePath := rootDir + pathSeparator + uid + "-图片_横屏_1K"
-		util.CreateDir(horizontal1kImagePath)
-		doMoveFileToDir(horizontal1KImageList, horizontal1kImagePath)
+	if len(vars.ImageHorizontal1KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_1K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal1KList, imageDirPath)
 	}
-	if len(horizontal2KImageList) > 0 {
-		horizontal2kImagePath := rootDir + pathSeparator + uid + "-图片_横屏_2K"
-		util.CreateDir(horizontal2kImagePath)
-		doMoveFileToDir(horizontal2KImageList, horizontal2kImagePath)
+	if len(vars.ImageHorizontal2KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_2K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal2KList, imageDirPath)
 	}
-	if len(horizontal3KImageList) > 0 {
-		horizontal3kImagePath := rootDir + pathSeparator + uid + "-图片_横屏_3K"
-		util.CreateDir(horizontal3kImagePath)
-		doMoveFileToDir(horizontal3KImageList, horizontal3kImagePath)
+	if len(vars.ImageHorizontal3KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_3K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal3KList, imageDirPath)
 	}
-	if len(horizontal4KImageList) > 0 {
-		horizontal4kImagePath := rootDir + pathSeparator + uid + "-图片_横屏_4K"
-		util.CreateDir(horizontal4kImagePath)
-		doMoveFileToDir(horizontal4KImageList, horizontal4kImagePath)
+	if len(vars.ImageHorizontal4KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_4K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal4KList, imageDirPath)
 	}
-	if len(horizontal5KImageList) > 0 {
-		horizontal5kImagePath := rootDir + pathSeparator + uid + "-图片_横屏_5K"
-		util.CreateDir(horizontal5kImagePath)
-		doMoveFileToDir(horizontal5KImageList, horizontal5kImagePath)
+	if len(vars.ImageHorizontal5KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_5K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal5KList, imageDirPath)
 	}
-	if len(horizontal6KImageList) > 0 {
-		horizontal6kImagePath := rootDir + pathSeparator + uid + "-图片_横屏_6K"
-		util.CreateDir(horizontal6kImagePath)
-		doMoveFileToDir(horizontal6KImageList, horizontal6kImagePath)
+	if len(vars.ImageHorizontal6KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_6K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal6KList, imageDirPath)
 	}
-	if len(horizontal7KImageList) > 0 {
-		horizontal7KImagePath := rootDir + pathSeparator + uid + "-图片_横屏_7K"
-		util.CreateDir(horizontal7KImagePath)
-		doMoveFileToDir(horizontal7KImageList, horizontal7KImagePath)
+	if len(vars.ImageHorizontal7KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_7K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal7KList, imageDirPath)
 	}
-	if len(horizontal8KImageList) > 0 {
-		horizontal8kImagePath := rootDir + pathSeparator + uid + "-图片_横屏_8K"
-		util.CreateDir(horizontal8kImagePath)
-		doMoveFileToDir(horizontal8KImageList, horizontal8kImagePath)
+	if len(vars.ImageHorizontal8KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_8K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal8KList, imageDirPath)
 	}
-	if len(horizontal9KImageList) > 0 {
-		horizontal9kImagePath := rootDir + pathSeparator + uid + "-图片_横屏_9K"
-		util.CreateDir(horizontal9kImagePath)
-		doMoveFileToDir(horizontal9KImageList, horizontal9kImagePath)
+	if len(vars.ImageHorizontal9KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_9K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontal9KList, imageDirPath)
 	}
-	if len(horizontalHKImageList) > 0 {
-		horizontalHkImagePath := rootDir + pathSeparator + uid + "-图片_横屏_原图"
-		util.CreateDir(horizontalHkImagePath)
-		doMoveFileToDir(horizontalHKImageList, horizontalHkImagePath)
+	if len(vars.ImageHorizontalHKList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_横屏_原图"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageHorizontalHKList, imageDirPath)
 	}
 }
 
@@ -400,60 +381,60 @@ func moveHorizontalImage(rootDir string, uid string) {
 func moveVerticalImage(rootDir string, uid string) {
 	pathSeparator := string(os.PathSeparator)
 	// 非标准
-	if len(verticalNormalImageList) > 0 {
-		verticalNormalImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_普通"
-		util.CreateDir(verticalNormalImagePath)
-		doMoveFileToDir(verticalNormalImageList, verticalNormalImagePath)
+	if len(vars.ImageVerticalNormalList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_普通"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVerticalNormalList, imageDirPath)
 	}
-	if len(vertical1KImageList) > 0 {
-		vertical1kImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_1K"
-		util.CreateDir(vertical1kImagePath)
-		doMoveFileToDir(vertical1KImageList, vertical1kImagePath)
+	if len(vars.ImageVertical1KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_1K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical1KList, imageDirPath)
 	}
-	if len(vertical2KImageList) > 0 {
-		vertical2kImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_2K"
-		util.CreateDir(vertical2kImagePath)
-		doMoveFileToDir(vertical2KImageList, vertical2kImagePath)
+	if len(vars.ImageVertical2KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_2K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical2KList, imageDirPath)
 	}
-	if len(vertical3KImageList) > 0 {
-		vertical3kImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_3K"
-		util.CreateDir(vertical3kImagePath)
-		doMoveFileToDir(vertical3KImageList, vertical3kImagePath)
+	if len(vars.ImageVertical3KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_3K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical3KList, imageDirPath)
 	}
-	if len(vertical4KImageList) > 0 {
-		vertical4kImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_4K"
-		util.CreateDir(vertical4kImagePath)
-		doMoveFileToDir(vertical4KImageList, vertical4kImagePath)
+	if len(vars.ImageVertical4KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_4K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical4KList, imageDirPath)
 	}
-	if len(vertical5KImageList) > 0 {
-		vertical5kImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_5K"
-		util.CreateDir(vertical5kImagePath)
-		doMoveFileToDir(vertical5KImageList, vertical5kImagePath)
+	if len(vars.ImageVertical5KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_5K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical5KList, imageDirPath)
 	}
-	if len(vertical6KImageList) > 0 {
-		vertical6kImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_6K"
-		util.CreateDir(vertical6kImagePath)
-		doMoveFileToDir(vertical6KImageList, vertical6kImagePath)
+	if len(vars.ImageVertical6KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_6K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical6KList, imageDirPath)
 	}
-	if len(vertical7KImageList) > 0 {
-		vertical7KImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_7K"
-		util.CreateDir(vertical7KImagePath)
-		doMoveFileToDir(vertical7KImageList, vertical7KImagePath)
+	if len(vars.ImageVertical7KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_7K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical7KList, imageDirPath)
 	}
-	if len(vertical8KImageList) > 0 {
-		vertical8kImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_8K"
-		util.CreateDir(vertical8kImagePath)
-		doMoveFileToDir(vertical8KImageList, vertical8kImagePath)
+	if len(vars.ImageVertical8KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_8K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical8KList, imageDirPath)
 	}
-	if len(vertical9KImageList) > 0 {
-		vertical9kImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_9K"
-		util.CreateDir(vertical9kImagePath)
-		doMoveFileToDir(vertical9KImageList, vertical9kImagePath)
+	if len(vars.ImageVertical9KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_9K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVertical9KList, imageDirPath)
 	}
-	if len(verticalHKImageList) > 0 {
-		verticalHkImagePath := rootDir + pathSeparator + uid + "-图片_竖屏_原图"
-		util.CreateDir(verticalHkImagePath)
-		doMoveFileToDir(verticalHKImageList, verticalHkImagePath)
+	if len(vars.ImageVerticalHKList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_竖屏_原图"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageVerticalHKList, imageDirPath)
 	}
 }
 
@@ -461,59 +442,59 @@ func moveVerticalImage(rootDir string, uid string) {
 func moveSquareImage(rootDir string, uid string) {
 	pathSeparator := string(os.PathSeparator)
 	// 非标准
-	if len(squareNormalImageList) > 0 {
-		squareNormalImagePath := rootDir + pathSeparator + uid + "-图片_等比_普通"
-		util.CreateDir(squareNormalImagePath)
-		doMoveFileToDir(squareNormalImageList, squareNormalImagePath)
+	if len(vars.ImageSquareNormalList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_普通"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquareNormalList, imageDirPath)
 	}
-	if len(square1KImageList) > 0 {
-		square1kImagePath := rootDir + pathSeparator + uid + "-图片_等比_1K"
-		util.CreateDir(square1kImagePath)
-		doMoveFileToDir(square1KImageList, square1kImagePath)
+	if len(vars.ImageSquare1KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_1K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare1KList, imageDirPath)
 	}
-	if len(square2KImageList) > 0 {
-		square2kImagePath := rootDir + pathSeparator + uid + "-图片_等比_2K"
-		util.CreateDir(square2kImagePath)
-		doMoveFileToDir(square2KImageList, square2kImagePath)
+	if len(vars.ImageSquare2KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_2K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare2KList, imageDirPath)
 	}
-	if len(square3KImageList) > 0 {
-		square3kImagePath := rootDir + pathSeparator + uid + "-图片_等比_3K"
-		util.CreateDir(square3kImagePath)
-		doMoveFileToDir(square3KImageList, square3kImagePath)
+	if len(vars.ImageSquare3KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_3K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare3KList, imageDirPath)
 	}
-	if len(square4KImageList) > 0 {
-		square4kImagePath := rootDir + pathSeparator + uid + "-图片_等比_4K"
-		util.CreateDir(square4kImagePath)
-		doMoveFileToDir(square4KImageList, square4kImagePath)
+	if len(vars.ImageSquare4KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_4K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare4KList, imageDirPath)
 	}
-	if len(square5KImageList) > 0 {
-		square5kImagePath := rootDir + pathSeparator + uid + "-图片_等比_5K"
-		util.CreateDir(square5kImagePath)
-		doMoveFileToDir(square5KImageList, square5kImagePath)
+	if len(vars.ImageSquare5KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_5K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare5KList, imageDirPath)
 	}
-	if len(square6KImageList) > 0 {
-		square6kImagePath := rootDir + pathSeparator + uid + "-图片_等比_6K"
-		util.CreateDir(square6kImagePath)
-		doMoveFileToDir(square6KImageList, square6kImagePath)
+	if len(vars.ImageSquare6KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_6K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare6KList, imageDirPath)
 	}
-	if len(square7KImageList) > 0 {
-		square7KImagePath := rootDir + pathSeparator + uid + "-图片_等比_7K"
-		util.CreateDir(square7KImagePath)
-		doMoveFileToDir(square7KImageList, square7KImagePath)
+	if len(vars.ImageSquare7KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_7K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare7KList, imageDirPath)
 	}
-	if len(square8KImageList) > 0 {
-		square8kImagePath := rootDir + pathSeparator + uid + "-图片_等比_8K"
-		util.CreateDir(square8kImagePath)
-		doMoveFileToDir(square8KImageList, square8kImagePath)
+	if len(vars.ImageSquare8KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_8K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare8KList, imageDirPath)
 	}
-	if len(square9KImageList) > 0 {
-		square9kImagePath := rootDir + pathSeparator + uid + "-图片_等比_9K"
-		util.CreateDir(square9kImagePath)
-		doMoveFileToDir(square9KImageList, square9kImagePath)
+	if len(vars.ImageSquare9KList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_9K"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquare9KList, imageDirPath)
 	}
-	if len(squareHKImageList) > 0 {
-		squareHkImagePath := rootDir + pathSeparator + uid + "-图片_等比_原图"
-		util.CreateDir(squareHkImagePath)
-		doMoveFileToDir(squareHKImageList, squareHkImagePath)
+	if len(vars.ImageSquareHKList) > 0 {
+		imageDirPath := rootDir + pathSeparator + uid + "-图片_等比_原图"
+		util.CreateDir(imageDirPath)
+		util.DoMoveFileToDir(vars.ImageSquareHKList, imageDirPath)
 	}
 }

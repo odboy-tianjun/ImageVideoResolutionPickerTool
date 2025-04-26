@@ -30,7 +30,7 @@ type BMPInfoHeader struct {
 	ColorsImportant uint32
 }
 
-func readBmpInfo(filePath string) (error, int32, int32) {
+func ReadBmpImage(filePath string) (error, int32, int32) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Printf("=== Failed to open file: %v\n", err)

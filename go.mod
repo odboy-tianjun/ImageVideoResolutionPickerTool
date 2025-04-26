@@ -1,4 +1,4 @@
-module OdMediaPicker
+module ImageVideoResolutionPickerTool
 
 go 1.19
 

@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-// 读取webp格式的图片信息
-func readWebpTypeImage(webpFilePath string) (err error, width int, height int) {
+// ReadWebpImage 读取webp格式的图片信息
+func ReadWebpImage(webpFilePath string) (err error, width int, height int) {
 	// 打开WebP文件
 	file, err := os.Open(webpFilePath)
 	if err != nil {
