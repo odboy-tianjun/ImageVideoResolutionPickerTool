@@ -1,13 +1,13 @@
 package main
 
 import (
-	"ImageVideoResolutionPickerTool/core"
-	"ImageVideoResolutionPickerTool/vars"
 	_ "embed"
 	"fmt"
 	_ "image/gif"  // 导入gif支持
 	_ "image/jpeg" // 导入jpeg支持
 	_ "image/png"  // 导入png支持
+	"kenaito-media-picker/core"
+	"kenaito-media-picker/vars"
 	"os"
 	"time"
 )
@@ -20,7 +20,6 @@ func main() {
 		fmt.Println("=== 获取当前路径异常", err)
 		return
 	}
-	rootDir = "E:\\DGD\\d20250424\\video"
 	scanner := core.FileScanner{}
 	scanner.DoScan(rootDir)
 	scanner.DoFilter()

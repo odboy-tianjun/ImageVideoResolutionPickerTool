@@ -1,7 +1,7 @@
-rm -f ImageVideoResolutionPickerTool.exe
-rm -f ImageVideoResolutionPickerToolRelease.exe
+rm -f kenaito-media-picker.exe
+rm -f kenaito-media-picker-release.exe
 # build
-go build -o ImageVideoResolutionPickerTool.exe main.go
+go build -o kenaito-media-picker-release.exe main.go
 # upx compress
-./upx -o ImageVideoResolutionPickerToolRelease.exe ImageVideoResolutionPickerTool.exe
-rm -f ImageVideoResolutionPickerTool.exe
+./upx -o kenaito-media-picker.exe kenaito-media-picker-release.exe
+rm -f kenaito-media-picker-release.exe

@@ -1,4 +1,4 @@
-module ImageVideoResolutionPickerTool
+module kenaito-media-picker
 
 go 1.19
 

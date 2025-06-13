@@ -1,10 +1,10 @@
 package core
 
 import (
-	"ImageVideoResolutionPickerTool/util"
-	"ImageVideoResolutionPickerTool/vars"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
+	"kenaito-media-picker/util"
+	"kenaito-media-picker/vars"
 	"os"
 	"strings"
 	"time"

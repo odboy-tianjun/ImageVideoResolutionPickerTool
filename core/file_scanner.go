@@ -1,10 +1,10 @@
 package core
 
 import (
-	"ImageVideoResolutionPickerTool/util"
-	"ImageVideoResolutionPickerTool/vars"
 	"fmt"
 	"github.com/redmask-hb/GoSimplePrint/goPrint"
+	"kenaito-media-picker/util"
+	"kenaito-media-picker/vars"
 	"log"
 	"os"
 	"path"

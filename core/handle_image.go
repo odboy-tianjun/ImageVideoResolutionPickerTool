@@ -1,13 +1,13 @@
 package core
 
 import (
-	"ImageVideoResolutionPickerTool/util"
-	"ImageVideoResolutionPickerTool/vars"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	_ "image/gif"  // 导入gif支持
 	_ "image/jpeg" // 导入jpeg支持
 	_ "image/png"  // 导入png支持
+	"kenaito-media-picker/util"
+	"kenaito-media-picker/vars"
 	"os"
 	"strings"
 )
